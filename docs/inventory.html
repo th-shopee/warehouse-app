@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="input-order.html">Input Order</a></li>
+      <li><a href="output-order.html">Output Order</a></li>
+      <li><a href="inventory.html">Inventory</a></li>
+      <li><a href="update-locations.html">Update Locations</a></li>
+      <li><a href="transactions.html">Transactions</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    <h2>Inventory</h2>
+    <label for="location_id">Filter by Location:</label>
+    <select id="location_id">
+      <option value="">All Locations</option>
+    </select>
+    <button id="download-csv">Download CSV</button>
+    <table id="inventory-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Location</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+  <script src="inventory.js"></script>
+</body>
+</html>
