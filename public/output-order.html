@@ -21,16 +21,20 @@
   <div class="container">
     <h2>Output Order</h2>
     <div class="current-warehouse">Current Warehouse: <span id="current-whs">None selected</span></div>
-    <form id="output-order-form" enctype="multipart/form-data">
+    <div id="success-message" class="success-message" style="display: none;">
+      Order submitted successfully!
+    </div>
+    <form id="output-order-form">
       <label for="user_id">User ID:</label>
       <input type="text" id="user_id" name="user_id" required>
       <label for="location_id">Location ID:</label>
       <input type="text" id="location_id" name="location_id" required>
       <label for="file">Upload File:</label>
-      <input type="file" id="file" name="file">
+      <input type="file" id="file" name="file" accept=".xlsx">
       <button type="submit">Submit</button>
     </form>
   </div>
+  <script src="config.js"></script>
   <script src="output-order.js"></script>
 </body>
 </html>

@@ -1,39 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Input Order</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <nav>
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="input-order.html">Input Order</a></li>
-      <li><a href="output-order.html">Output Order</a></li>
-      <li><a href="inventory.html">Inventory</a></li>
-      <li><a href="update-locations.html">Update Locations</a></li>
-      <li><a href="transactions.html">Transactions</a></li>
-      <li><a href="create-warehouse.html">Create Warehouse</a></li>
-    </ul>
-  </nav>
-  <div class="container">
-    <h2>Input Order</h2>
-    <div class="current-warehouse">Current Warehouse: <span id="current-whs">None selected</span></div>
-    <div id="success-message" class="success-message" style="display: none;">
-      Order submitted successfully!
-    </div>
-    <form id="input-order-form">
-      <label for="order_id">Order ID:</label>
-      <input type="text" id="order_id" name="order_id" required>
-      <label for="user_id">User ID:</label>
-      <input type="text" id="user_id" name="user_id" required>
-      <label for="location_id">Location ID:</label>
-      <input type="text" id="location_id" name="location_id" required>
-      <button type="submit">Submit</button>
-    </form>
-  </div>
-  <script src="input-order.js"></script>
-</body>
-</html>
+   <html lang="en">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>Input Order</title>
+     <link rel="stylesheet" href="styles.css">
+   </head>
+   <body>
+     <nav>
+       <ul>
+         <li><a href="index.html">Home</a></li>
+         <li><a href="input-order.html">Input Order</a></li>
+         <li><a href="output-order.html">Output Order</a></li>
+         <li><a href="inventory.html">Inventory</a></li>
+         <li><a href="update-locations.html">Update Locations</a></li>
+         <li><a href="transactions.html">Transactions</a></li>
+         <li><a href="create-warehouse.html">Create Warehouse</a></li>
+       </ul>
+     </nav>
+     <div class="container">
+       <h2>Input Order</h2>
+       <div class="current-warehouse">Current Warehouse: <span id="current-whs">None selected</span></div>
+       <div id="success-message" class="success-message" style="display: none;">
+         Order submitted successfully!
+       </div>
+       <form id="input-order-form">
+         <label for="order_id">Order ID:</label>
+         <input type="text" id="order_id" name="order_id" required>
+         <label for="user_id">User ID:</label>
+         <input type="text" id="user_id" name="user_id" required>
+         <label for="location_id">Location ID:</label>
+         <input type="text" id="location_id" name="location_id" required>
+         <button type="submit">Submit</button>
+       </form>
+     </div>
+     <script src="config.js"></script>
+     <script src="input-order.js"></script>
+   </body>
+   </html>

@@ -1,217 +1,81 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const typeSelect = document.getElementById('type');
-  const locationSelect = document.getElementById('location_id');
-  const tableBody = document.getElementById('transactions-table').querySelector('tbody');
-  const downloadBtn = document.getElementById('download-csv');
-  const currentWhsSpan = document.getElementById('current-whs');
-  let transactionsData = [];
+     const transactionsTable = document.getElementById('transactions-table').getElementsByTagName('tbody')[0];
+     const typeFilter = document.getElementById('type');
+     const locationFilter = document.getElementById('location_id');
+     const currentWhsSpan = document.getElementById('current-whs');
 
-  // Display current warehouse
-  function displayCurrentWarehouse() {
-    const whsId = localStorage.getItem('selectedWhsId');
-    if (whsId) {
-      fetch('/api/warehouses')
-        .then(response => response.json())
-        .then(warehouses => {
-          const selectedWhs = warehouses.find(whs => whs.whs_id === whsId);
-          currentWhsSpan.textContent = selectedWhs ? selectedWhs.whs_name : 'None selected';
-        })
-        .catch(err => console.error('Error fetching warehouses:', err.message));
-    } else {
-      currentWhsSpan.textContent = 'None selected';
-    }
-  }
+     // Display current warehouse
+     function displayCurrentWarehouse() {
+       const whsId = localStorage.getItem('selectedWhsId');
+       if (whsId) {
+         fetch(`${config.backendUrl}/api/warehouses`)
+           .then(response => response.json())
+           .then(warehouses => {
+             const selectedWhs = warehouses.find(whs => whs.whs_id === whsId);
+             currentWhsSpan.textContent = selectedWhs ? selectedWhs.whs_name : 'None selected';
+           })
+           .catch(err => console.error('Error fetching warehouses:', err.message));
+       } else {
+         currentWhsSpan.textContent = 'None selected';
+       }
+     }
 
-  // Fetch locations for selected warehouse
-  function fetchLocations() {
-    const whsId = localStorage.getItem('selectedWhsId');
-    if (!whsId) {
-      alert('Please select a warehouse on the Home page');
-      return;
-    }
-    locationSelect.innerHTML = '<option value="">All Locations</option>';
-    fetch(`/api/locations?whs_id=${whsId}`)
-      .then(response => response.json())
-      .then(locations => {
-        locations.forEach(loc => {
-          const option = document.createElement('option');
-          option.value = loc.location_id;
-          option.textContent = loc.location_name;
-          locationSelect.appendChild(option);
-        });
-      })
-      .catch(err => console.error('Error fetching locations:', err.message));
-  }
+     // Fetch and display transactions
+     function fetchTransactions() {
+       const whsId = localStorage.getItem('selectedWhsId');
+       const type = typeFilter.value;
+       const locationId = locationFilter.value;
 
-  // Fetch transactions
-  function fetchTransactions() {
-    const whsId = localStorage.getItem('selectedWhsId');
-    if (!whsId) {
-      alert('Please select a warehouse on the Home page');
-      return;
-    }
-    const type = typeSelect.value;
-    const locationId = locationSelect.value;
-    const params = new URLSearchParams({ whs_id: whsId });
-    if (type) params.append('type', type);
-    if (locationId) params.append('location_id', locationId);
-    const url = `/api/transactions?${params.toString()}`;
+       if (!whsId) {
+         alert('Please select a warehouse on the Home page');
+         return;
+       }
 
-    fetch(url)
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        return response.json();
-      })
-      .then(data => {
-        transactionsData = data;
-        tableBody.innerHTML = '';
-        data.forEach(item => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${item.type}</td>
-            <td>${item.order_id}</td>
-            <td>${item.user_id}</td>
-            <td>${item.location_id}</td>
-            <td>${new Date(item.timestamp).toLocaleString()}</td>
-          `;
-          tableBody.appendChild(row);
-        });
-      })
-      .catch(err => {
-        console.error('Error fetching transactions:', err.message);
-        alert('Error loading transactions: ' + err.message);
-      });
-  }
+       let query = `?whs_id=${whsId}`;
+       if (type) query += `&type=${type}`;
+       if (locationId) query += `&location_id=${locationId}`;
 
-  // Download CSV
-  downloadBtn.addEventListener('click', () => {
-    const csv = ['Type,Order ID,User ID,Location ID,Timestamp'];
-    transactionsData.forEach(item => {
-      csv.push(`${item.type},${item.order_id},${item.user_id},${item.location_id},${item.timestamp}`);
-    });
-    const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'transactions.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
+       fetch(`${config.backendUrl}/api/transactions${query}`)
+         .then(response => response.json())
+         .then(transactions => {
+           transactionsTable.innerHTML = '';
+           transactions.forEach(tx => {
+             const row = transactionsTable.insertRow();
+             row.insertCell(0).textContent = tx.type;
+             row.insertCell(1).textContent = tx.order_id;
+             row.insertCell(2).textContent = tx.user_id;
+             row.insertCell(3).textContent = tx.location_id;
+             row.insertCell(4).textContent = tx.whs_id;
+             row.insertCell(5).textContent = new Date(tx.timestamp).toLocaleString();
+           });
+         })
+         .catch(err => console.error('Error fetching transactions:', err.message));
+     }
 
-  // Filter on change
-  typeSelect.addEventListener('change', fetchTransactions);
-  locationSelect.addEventListener('change', fetchTransactions);
+     // Populate location filter
+     function populateLocations() {
+       const whsId = localStorage.getItem('selectedWhsId');
+       if (!whsId) return;
+       fetch(`${config.backendUrl}/api/locations?whs_id=${whsId}`)
+         .then(response => response.json())
+         .then(locations => {
+           locationFilter.innerHTML = '<option value="">All Locations</option>';
+           locations.forEach(loc => {
+             const option = document.createElement('option');
+             option.value = loc.location_id;
+             option.textContent = loc.location_name;
+             locationFilter.appendChild(option);
+           });
+         })
+         .catch(err => console.error('Error fetching locations:', err.message));
+     }
 
-  // Initial setup
-  displayCurrentWarehouse();
-  fetchLocations();
-  fetchTransactions();
-});document.addEventListener('DOMContentLoaded', () => {
-  const typeSelect = document.getElementById('type');
-  const locationSelect = document.getElementById('location_id');
-  const tableBody = document.getElementById('transactions-table').querySelector('tbody');
-  const downloadBtn = document.getElementById('download-csv');
-  const currentWhsSpan = document.getElementById('current-whs');
-  let transactionsData = [];
+     // Event listeners
+     typeFilter.addEventListener('change', fetchTransactions);
+     locationFilter.addEventListener('change', fetchTransactions);
 
-  // Display current warehouse
-  function displayCurrentWarehouse() {
-    const whsId = localStorage.getItem('selectedWhsId');
-    if (whsId) {
-      fetch('/api/warehouses')
-        .then(response => response.json())
-        .then(warehouses => {
-          const selectedWhs = warehouses.find(whs => whs.whs_id === whsId);
-          currentWhsSpan.textContent = selectedWhs ? selectedWhs.whs_name : 'None selected';
-        })
-        .catch(err => console.error('Error fetching warehouses:', err.message));
-    } else {
-      currentWhsSpan.textContent = 'None selected';
-    }
-  }
-
-  // Fetch locations for selected warehouse
-  function fetchLocations() {
-    const whsId = localStorage.getItem('selectedWhsId');
-    if (!whsId) {
-      alert('Please select a warehouse on the Home page');
-      return;
-    }
-    locationSelect.innerHTML = '<option value="">All Locations</option>';
-    fetch(`/api/locations?whs_id=${whsId}`)
-      .then(response => response.json())
-      .then(locations => {
-        locations.forEach(loc => {
-          const option = document.createElement('option');
-          option.value = loc.location_id;
-          option.textContent = loc.location_name;
-          locationSelect.appendChild(option);
-        });
-      })
-      .catch(err => console.error('Error fetching locations:', err.message));
-  }
-
-  // Fetch transactions
-  function fetchTransactions() {
-    const whsId = localStorage.getItem('selectedWhsId');
-    if (!whsId) {
-      alert('Please select a warehouse on the Home page');
-      return;
-    }
-    const type = typeSelect.value;
-    const locationId = locationSelect.value;
-    const params = new URLSearchParams({ whs_id: whsId });
-    if (type) params.append('type', type);
-    if (locationId) params.append('location_id', locationId);
-    const url = `/api/transactions?${params.toString()}`;
-
-    fetch(url)
-      .then(response => {
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-        return response.json();
-      })
-      .then(data => {
-        transactionsData = data;
-        tableBody.innerHTML = '';
-        data.forEach(item => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${item.type}</td>
-            <td>${item.order_id}</td>
-            <td>${item.user_id}</td>
-            <td>${item.location_id}</td>
-            <td>${new Date(item.timestamp).toLocaleString()}</td>
-          `;
-          tableBody.appendChild(row);
-        });
-      })
-      .catch(err => {
-        console.error('Error fetching transactions:', err.message);
-        alert('Error loading transactions: ' + err.message);
-      });
-  }
-
-  // Download CSV
-  downloadBtn.addEventListener('click', () => {
-    const csv = ['Type,Order ID,User ID,Location ID,Timestamp'];
-    transactionsData.forEach(item => {
-      csv.push(`${item.type},${item.order_id},${item.user_id},${item.location_id},${item.timestamp}`);
-    });
-    const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'transactions.csv';
-    a.click();
-    URL.revokeObjectURL(url);
-  });
-
-  // Filter on change
-  typeSelect.addEventListener('change', fetchTransactions);
-  locationSelect.addEventListener('change', fetchTransactions);
-
-  // Initial setup
-  displayCurrentWarehouse();
-  fetchLocations();
-  fetchTransactions();
-});
+     // Initial setup
+     displayCurrentWarehouse();
+     populateLocations();
+     fetchTransactions();
+   });
