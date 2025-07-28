@@ -14,13 +14,13 @@ require('dotenv').config();
      user: 'postgres',
      host: 'localhost',
      database: 'warehouse',
-     password: process.env.DB_PASSWORD,
+     password: '123',
      port: 5432,
    });
 
    // Middleware
    app.use(cors({
-     origin: ['http://localhost:5000', 'https://your-username.github.io'] // Replace with your GitHub Pages URL
+     origin: ['http://localhost:5000', 'https://th-shopee.github.io'] // Replace with your GitHub Pages URL
    }));
    app.use(express.json());
    app.use(express.static('public')); // Serve static files for local testing
@@ -30,15 +30,16 @@ require('dotenv').config();
    app.use(express.static(path.join(__dirname, 'public')));
 
    // Get warehouses
-   app.get('/api/warehouses', async (req, res) => {
-     try {
-       const result = await pool.query('SELECT * FROM warehouses');
-       res.json(result.rows);
-     } catch (err) {
-       console.error('Error fetching warehouses:', err.message);
-       res.status(500).json({ error: err.message });
-     }
-   });
+app.get('/api/warehouses', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM warehouses');
+    console.log('Warehouses query result:', result.rows);
+    res.json(result.rows);
+  } catch (err) {
+    console.error('Error fetching warehouses:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
 
    // Create warehouse
    app.post('/api/warehouses', async (req, res) => {
