@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Output Order</title>
+  <title>Create Warehouse</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -19,18 +19,16 @@
     </ul>
   </nav>
   <div class="container">
-    <h2>Output Order</h2>
+    <h2>Create Warehouse</h2>
     <div class="current-warehouse">Current Warehouse: <span id="current-whs">None selected</span></div>
-    <form id="output-order-form" enctype="multipart/form-data">
-      <label for="user_id">User ID:</label>
-      <input type="text" id="user_id" name="user_id" required>
-      <label for="location_id">Location ID:</label>
-      <input type="text" id="location_id" name="location_id" required>
-      <label for="file">Upload File:</label>
-      <input type="file" id="file" name="file">
-      <button type="submit">Submit</button>
+    <form id="create-warehouse-form">
+      <label for="whs_id">Warehouse ID:</label>
+      <input type="text" id="whs_id" name="whs_id" required>
+      <label for="whs_name">Warehouse Name:</label>
+      <input type="text" id="whs_name" name="whs_name" required>
+      <button type="submit">Create Warehouse</button>
     </form>
   </div>
-  <script src="output-order.js"></script>
+  <script src="create-warehouse.js"></script>
 </body>
 </html>
