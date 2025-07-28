@@ -8,8 +8,15 @@ document.addEventListener('DOMContentLoaded', () => {
      function displayCurrentWarehouse() {
        const whsId = localStorage.getItem('selectedWhsId');
        if (whsId) {
-         fetch(`${config.backendUrl}/api/warehouses`)
-           .then(response => response.json())
+         fetch(`${config.backendUrl}/api/warehouses`, {
+           headers: {
+             'ngrok-skip-browser-warning': 'true'
+           }
+         })
+           .then(response => {
+             if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+             return response.json();
+           })
            .then(warehouses => {
              const selectedWhs = warehouses.find(whs => whs.whs_id === whsId);
              currentWhsSpan.textContent = selectedWhs ? selectedWhs.whs_name : 'None selected';
@@ -35,8 +42,15 @@ document.addEventListener('DOMContentLoaded', () => {
        if (type) query += `&type=${type}`;
        if (locationId) query += `&location_id=${locationId}`;
 
-       fetch(`${config.backendUrl}/api/transactions${query}`)
-         .then(response => response.json())
+       fetch(`${config.backendUrl}/api/transactions${query}`, {
+         headers: {
+           'ngrok-skip-browser-warning': 'true'
+         }
+       })
+         .then(response => {
+           if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+           return response.json();
+         })
          .then(transactions => {
            transactionsTable.innerHTML = '';
            transactions.forEach(tx => {
@@ -56,8 +70,15 @@ document.addEventListener('DOMContentLoaded', () => {
      function populateLocations() {
        const whsId = localStorage.getItem('selectedWhsId');
        if (!whsId) return;
-       fetch(`${config.backendUrl}/api/locations?whs_id=${whsId}`)
-         .then(response => response.json())
+       fetch(`${config.backendUrl}/api/locations?whs_id=${whsId}`, {
+         headers: {
+           'ngrok-skip-browser-warning': 'true'
+         }
+       })
+         .then(response => {
+           if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+           return response.json();
+         })
          .then(locations => {
            locationFilter.innerHTML = '<option value="">All Locations</option>';
            locations.forEach(loc => {

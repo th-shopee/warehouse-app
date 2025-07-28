@@ -14,36 +14,36 @@ require('dotenv').config();
      user: 'postgres',
      host: 'localhost',
      database: 'warehouse',
-     password: '123',
+     password: process.env.DB_PASSWORD,
      port: 5432,
    });
 
    // Middleware
    app.use(cors({
-     origin: ['http://localhost:5000', 'https://th-shopee.github.io'] // Replace with your GitHub Pages URL
+     origin: ['http://localhost:5000', 'https://th-shopee.github.io']
    }));
+   app.use((req, res, next) => {
+     console.log(`Request: ${req.method} ${req.url} from ${req.headers.origin}`);
+     next();
+   });
    app.use(express.json());
-   app.use(express.static('public')); // Serve static files for local testing
    const upload = multer({ dest: '/tmp/uploads/' });
 
-   // Serve static files
-   app.use(express.static(path.join(__dirname, 'public')));
+   // API routes
+   app.get('/api/warehouses', async (req, res) => {
+     try {
+       const result = await pool.query('SELECT * FROM warehouses');
+       console.log('Warehouses query result:', result.rows);
+       res.json(result.rows);
+     } catch (err) {
+       console.error('Error fetching warehouses:', err.message);
+       res.status(500).json({ error: err.message });
+     }
+   });
 
-   // Get warehouses
-app.get('/api/warehouses', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM warehouses');
-    console.log('Warehouses query result:', result.rows);
-    res.json(result.rows);
-  } catch (err) {
-    console.error('Error fetching warehouses:', err.message);
-    res.status(500).json({ error: err.message });
-  }
-});
-
-   // Create warehouse
    app.post('/api/warehouses', async (req, res) => {
      const { whs_id, whs_name } = req.body;
+     console.log('Creating warehouse:', { whs_id, whs_name });
      if (!whs_id || !whs_name) {
        return res.status(400).json({ error: 'Warehouse ID and name are required' });
      }
@@ -55,6 +55,7 @@ app.get('/api/warehouses', async (req, res) => {
        if (result.rowCount === 0) {
          return res.status(409).json({ error: 'Warehouse ID already exists' });
        }
+       console.log('Warehouse created:', result.rows[0]);
        res.json(result.rows[0]);
      } catch (err) {
        console.error('Error creating warehouse:', err.message);
@@ -62,7 +63,6 @@ app.get('/api/warehouses', async (req, res) => {
      }
    });
 
-   // Get locations for a warehouse
    app.get('/api/locations', async (req, res) => {
      const { whs_id } = req.query;
      try {
@@ -70,6 +70,7 @@ app.get('/api/warehouses', async (req, res) => {
          'SELECT * FROM locations WHERE whs_id = $1',
          [whs_id]
        );
+       console.log('Locations query result:', result.rows);
        res.json(result.rows);
      } catch (err) {
        console.error('Error fetching locations:', err.message);
@@ -77,7 +78,6 @@ app.get('/api/warehouses', async (req, res) => {
      }
    });
 
-   // Input Orders
    app.post('/api/input-orders', async (req, res) => {
      const { user_id, order_id, location_id, whs_id } = req.body;
      try {
@@ -89,6 +89,7 @@ app.get('/api/warehouses', async (req, res) => {
          'INSERT INTO inventory (order_id, location_id, whs_id, status) VALUES ($1, $2, $3, $4)',
          [order_id, location_id, whs_id, 'IN']
        );
+       console.log('Input order created:', result.rows[0]);
        res.json(result.rows[0]);
      } catch (err) {
        console.error('Error inserting input order:', err.message);
@@ -96,7 +97,6 @@ app.get('/api/warehouses', async (req, res) => {
      }
    });
 
-   // Output Orders
    app.post('/api/output-orders', upload.single('file'), async (req, res) => {
      const { user_id, location_id, whs_id } = req.body;
      const file_path = req.file ? req.file.path : null;
@@ -109,6 +109,7 @@ app.get('/api/warehouses', async (req, res) => {
          'INSERT INTO inventory (order_id, location_id, whs_id, status) VALUES ($1, $2, $3, $4)',
          [result.rows[0].order_id, location_id, whs_id, 'OUT']
        );
+       console.log('Output order created:', result.rows[0]);
        res.json(result.rows[0]);
      } catch (err) {
        console.error('Error inserting output order:', err.message);
@@ -116,7 +117,6 @@ app.get('/api/warehouses', async (req, res) => {
      }
    });
 
-   // View Current Inventory
    app.get('/api/inventory', async (req, res) => {
      const { location_id, whs_id } = req.query;
      try {
@@ -132,6 +132,7 @@ app.get('/api/warehouses', async (req, res) => {
          params.push(location_id);
        }
        const result = await pool.query(query, params);
+       console.log('Inventory query result:', result.rows);
        res.json(result.rows);
      } catch (err) {
        console.error('Error fetching inventory:', err.message);
@@ -139,7 +140,6 @@ app.get('/api/warehouses', async (req, res) => {
      }
    });
 
-   // Update Locations
    app.post('/api/locations', upload.single('file'), async (req, res) => {
      const { whs_id } = req.body;
      if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
@@ -158,7 +158,8 @@ app.get('/api/warehouses', async (req, res) => {
            [name, whs_id, name]
          );
        }
-       await fs.unlink(req.file.path); // Delete temp file
+       await fs.unlink(req.file.path);
+       console.log('Locations updated for whs_id:', whs_id);
        res.json({ message: 'Locations updated successfully' });
      } catch (err) {
        console.error('Error updating locations:', err.message);
@@ -166,7 +167,6 @@ app.get('/api/warehouses', async (req, res) => {
      }
    });
 
-   // Historical Transactions
    app.get('/api/transactions', async (req, res) => {
      const { type, location_id, whs_id } = req.query;
      try {
@@ -195,12 +195,16 @@ app.get('/api/warehouses', async (req, res) => {
        }
        query += ' ORDER BY timestamp DESC';
        const result = await pool.query(query, params);
+       console.log('Transactions query result:', result.rows);
        res.json(result.rows);
      } catch (err) {
        console.error('Error fetching transactions:', err.message);
        res.status(500).json({ error: err.message });
      }
    });
+
+   // Serve static files (after API routes)
+   app.use(express.static(path.join(__dirname, 'public')));
 
    // Start server
    app.listen(port, () => {

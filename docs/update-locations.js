@@ -7,7 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
      function displayCurrentWarehouse() {
        const whsId = localStorage.getItem('selectedWhsId');
        if (whsId) {
-         fetch(`${config.backendUrl}/api/warehouses`)
+         fetch(`${config.backendUrl}/api/warehouses`, {
+              headers: {
+                'ngrok-skip-browser-warning': 'true'
+              }
+            })
            .then(response => response.json())
            .then(warehouses => {
              const selectedWhs = warehouses.find(whs => whs.whs_id === whsId);
@@ -36,6 +40,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
        fetch(`${config.backendUrl}/api/locations`, {
          method: 'POST',
+         headers: {
+            'ngrok-skip-browser-warning': 'true'
+          },
          body: formData
        })
          .then(response => {
