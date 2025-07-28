@@ -1,0 +1,33 @@
+# Node.js dependencies
+node_modules/
+package-lock.json
+
+# Backend files (exclude server.js if not needed in repo)
+server.js
+uploads/
+
+# Environment variables and sensitive data
+.env
+*.env
+
+# Temporary files
+.DS_Store
+*.log
+npm-debug.log*
+
+# Build artifacts
+dist/
+build/
+
+# Database files
+*.sql
+*.dump
+
+# VS Code settings
+.vscode/
+
+# Exclude all except the docs folder for GitHub Pages
+/*
+!docs/
+!README.md
+!.gitignore

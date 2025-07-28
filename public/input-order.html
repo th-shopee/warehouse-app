@@ -15,15 +15,22 @@
       <li><a href="inventory.html">Inventory</a></li>
       <li><a href="update-locations.html">Update Locations</a></li>
       <li><a href="transactions.html">Transactions</a></li>
+      <li><a href="create-warehouse.html">Create Warehouse</a></li>
     </ul>
   </nav>
   <div class="container">
     <h2>Input Order</h2>
+    <div class="current-warehouse">Current Warehouse: <span id="current-whs">None selected</span></div>
+    <div id="success-message" class="success-message" style="display: none;">
+      Order submitted successfully!
+    </div>
     <form id="input-order-form">
+      <label for="order_id">Order ID:</label>
+      <input type="text" id="order_id" name="order_id" required>
       <label for="user_id">User ID:</label>
       <input type="text" id="user_id" name="user_id" required>
-      <label for="location_id">Location:</label>
-      <select id="location_id" name="location_id" required></select>
+      <label for="location_id">Location ID:</label>
+      <input type="text" id="location_id" name="location_id" required>
       <button type="submit">Submit</button>
     </form>
   </div>

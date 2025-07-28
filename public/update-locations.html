@@ -15,14 +15,26 @@
       <li><a href="inventory.html">Inventory</a></li>
       <li><a href="update-locations.html">Update Locations</a></li>
       <li><a href="transactions.html">Transactions</a></li>
+      <li><a href="create-warehouse.html">Create Warehouse</a></li>
     </ul>
   </nav>
   <div class="container">
     <h2>Update Locations</h2>
-    <p>Upload a text file with one location name per line.</p>
+    <div class="current-warehouse">Current Warehouse: <span id="current-whs">None selected</span></div>
+    <p>Current locations:</p>
+    <table id="locations-table">
+      <thead>
+        <tr>
+          <th>Location ID</th>
+          <th>Location Name</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p>Upload an Excel (.xlsx) file with location IDs in column A to append new locations.</p>
     <form id="locations-form" enctype="multipart/form-data">
-      <label for="file">Upload File:</label>
-      <input type="file" id="file" name="file" accept=".txt" required>
+      <label for="file">Upload Excel File:</label>
+      <input type="file" id="file" name="file" accept=".xlsx" required>
       <button type="submit">Upload</button>
     </form>
   </div>
